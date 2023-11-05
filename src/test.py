@@ -49,6 +49,44 @@ def genKeys():
     write_key_to_file(sk[1], 'data/skprf.txt')
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------
+# Open the text file to see the locations
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+
+word_locations = {}
+
+# List of text files you want to process
+file_paths = ["data/f1.txt", "data/f2.txt", "data/f3.txt", "data/f4.txt", "data/f5.txt", "data/f6.txt"]
+
+# Iterate through each text file
+for file_path in file_paths:
+    with open(file_path, 'r') as file:
+        # Read the contents of the file and split into words
+        file_contents = file.read()
+        words = file_contents.split()
+
+        # Store the words and their file location (text file name)
+        for word in words:
+            # Convert the word to lowercase to avoid case sensitivity
+            word = word.lower()
+            if word not in word_locations:
+                word_locations[word] = [file_path]
+            else:
+                if file_path not in word_locations[word]:
+                    word_locations[word].append(file_path)
+
+# Extract the unique words and store them in an array
+unique_words = list(word_locations.keys())
+
+# Now you have the unique words in the 'unique_words' list, and for each word, you have the locations where it appears
+for word in unique_words:
+    print(f"{word} {', '.join(word_locations[word])}")
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+# Token Generation Function
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
 # Main function, in this function you will see the call of the 'Key-Generation' function, the Encoding function and the Decoding function
 # --------------------------------------------------------------------------------------------------------------------------------------------------------
 def main():
