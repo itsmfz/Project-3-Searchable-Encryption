@@ -1,10 +1,13 @@
-import os
-import glob
-import secrets
-from base64 import b64encode, b64decode
+# Import necessary modules
+import os            # Operating system-related functions
+import secrets       # Cryptographically strong random number generation
+from hashlib import sha256  # Hash function for secure hashing
+from base64 import b64encode, b64decode  # Encoding/decoding data in base64 format
+import glob # Import the glob module for file path pattern matching
+
 
 # ----------------------------------------------------------------------------
-# Generate Key Function: This function is to generate a random 256-bit encryption key
+# Generate Key Function: This function is to generate a random 256 bit encryptioon key
 # ----------------------------------------------------------------------------
 
 def generate_keys(bit_val, num_keys):
@@ -29,15 +32,15 @@ def print_key(sk):
 # Write key to file: This writes to the desired file
 # ----------------------------------------------------------------------------
 def write_key_to_file(key, filename):
-    # Writes an encryption key to a text file in hexadecimal format.
-    # key (bytes): The encryption key to be written.
-    # filename: The name of the file to write the key to. Default is 'data/key.txt'.
+    #Writes an encryption key to a text file in hexadecimal format.
+    #key (bytes): The encryption key to be written.
+    #filename : The name of the file to write the key to. Default is 'data/key.txt'.
     hex_key = key.hex()
     with open(filename, 'w') as file:
         file.write(hex_key)
 
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# genKeys: This function is aimed to generate the keys using the generate_key function after which we utilize the print_key and write_key_to_file functions to print and write the key to the file, respectively
+# genKeys: This function is aimed to generate the keys using the generate_key fuction after which we utilize the print_key and write_key_to_file function to print and write the key to the file respectively
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def genKeys():
@@ -51,11 +54,16 @@ def genKeys():
     print_key(sk[1])
     write_key_to_file(sk[1], 'data/skprf.txt')
     return sk
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# hex_to_int: This function is to convert hexadecimal to integer
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def hex_to_int(hex_string):
     # Convert a hexadecimal string to an integer
     return int(hex_string, 16)
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# encrypt_word: This function is aimed at encrypting the given text
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def encrypt_word(word, key):
     encrypted_word = ""
     for char in word:
@@ -65,7 +73,9 @@ def encrypt_word(word, key):
         else:
             encrypted_word += char
     return encrypted_word
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# encrypt_and_store_files: encrypts words in files matching a specified pattern using a given key, storing encrypted words in separate files within a 'ciphertext' folder, and records the mapping in 'data/token.txt'.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def encrypt_and_store_files(pattern, key_hex):
     key_int = int(key_hex, 16)
     
@@ -104,49 +114,13 @@ def encrypt_and_store_files(pattern, key_hex):
             token_file.write(f"{original} {encrypted}\n")
 
     return keyword_mapping
-
-def generate_location_matrix(unique_words, directory='data/', file_pattern='f*.txt'):
-    file_names = glob.glob(os.path.join(directory, file_pattern))
-
-    # Initialize an empty matrix
-    matrix = []
-
-    # Iterate through each text file
-    for file_name in file_names:
-        with open(file_name, 'r') as file:
-            # Read the contents of the file and split into words
-            file_contents = file.read()
-            words = file_contents.split()
-
-            # Initialize a list to represent the presence of words in the current file
-            word_presence = [0] * len(unique_words)
-
-            # Update the word_presence list based on the unique words found in the file
-            for i, word in enumerate(unique_words):
-                if word in words:
-                    word_presence[i] = 1
-
-            # Append the word_presence list to the matrix
-            matrix.append(word_presence)
-
-    return matrix
-
-def transpose_keyword_matrix(matrix, unique_words):
-    # Use nested list comprehensions to transpose the matrix
-    transposed_matrix = [[row[i] for row in matrix] for i in range(len(matrix[0]))]
-
-    # Display the transposed matrix with corresponding keywords
-    print("\nMatrix:")
-    print("Keywords:", unique_words)
-    for i, row in enumerate(transposed_matrix):
-        print(f"{unique_words[i]}:", row)
-
-    return transposed_matrix
-
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# location:  identifies unique words in files matching a specified pattern, records their locations, and prints the result, including each word and the corresponding file locations where they appear.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def location():
     word_locations = {}
     
-    directory = ''
+    directory = 'data/ciphertext'
 
     # Define the file name pattern
     file_pattern = 'c*.txt'
@@ -180,9 +154,55 @@ def location():
         
     return word_locations
 
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# generate_location_matrix: This function is aimed at at generating a matrix which in turn is transposed later using a different function.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def generate_location_matrix(unique_words, directory='data/', file_pattern='f*.txt'):
+    file_names = glob.glob(os.path.join(directory, file_pattern))
+
+    # Initialize an empty matrix
+    matrix = []
+
+    # Iterate through each text file
+    for file_name in file_names:
+        with open(file_name, 'r') as file:
+            # Read the contents of the file and split into words
+            file_contents = file.read()
+            words = file_contents.split()
+
+            # Initialize a list to represent the presence of words in the current file
+            word_presence = [0] * len(unique_words)
+
+            # Update the word_presence list based on the unique words found in the file
+            for i, word in enumerate(unique_words):
+                if word in words:
+                    word_presence[i] = 1
+
+            # Append the word_presence list to the matrix
+            matrix.append(word_presence)
+
+    return matrix
+
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# transpose_keyword_matrix: This function is aimed at at transposing the created matrix.
+# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+def transpose_keyword_matrix(matrix, unique_words):
+    # Use nested list comprehensions to transpose the matrix
+    transposed_matrix = [[row[i] for row in matrix] for i in range(len(matrix[0]))]
+
+    # Display the transposed matrix with corresponding keywords
+    print("\nMatrix:")
+    print("Keywords:", unique_words)
+    for i, row in enumerate(transposed_matrix):
+        print(f"{unique_words[i]}:", row)
+
+    return transposed_matrix
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+# Main function, in this function you will see the call of the 'Key-Generation' function, the Encoding function and the Decoding function
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
 def main():
     keys = genKeys()
-    location_mapping = location()
+    print("\n")
 
     # Encrypt and store files in the specified directory and pattern
     directory = 'data/'
@@ -191,17 +211,20 @@ def main():
 
     # Generate the location matrix
     location_matrix = generate_location_matrix(list(keyword_mapping.keys()))
-
+    
     # Transpose and display the keyword matrix
     transpose_keyword_matrix(location_matrix, list(keyword_mapping.keys()))
-
-    print("\nKeyword Mapping:")
+    print("\n")
+    print("Keyword Mapping:")
     for original, encrypted in keyword_mapping.items():
         print(f"{original} -> {encrypted}")
+    
+    location_mapping = location()
+    print("\n")
+    # Print the keyword mapping for reference
 
-    print("\nLocation Mapping:")
-    for word, locations in location_mapping.items():
-        print(f"{word}: {', '.join(locations)}")
+   
+
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------
 # This calls the main function in order to run the code
